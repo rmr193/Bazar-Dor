@@ -1,0 +1,187 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Product, Category } from "@/types";
+import { getProducts, getCategories } from "@/lib/api";
+import { toBnNum } from "@/lib/bengali";
+import ProductCard from "./ProductCard";
+import ProductCardSkeleton from "./ProductCardSkeleton";
+import { Search, SlidersHorizontal, RefreshCw } from "lucide-react";
+
+export default function AllProductsSection() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Load all products and categories
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [prodData, catData] = await Promise.all([
+          getProducts(),
+          getCategories(),
+        ]);
+        setProducts(prodData);
+        setCategories(catData);
+      } catch (err) {
+        console.error("All products fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  // Filter products by selected category and search query
+  const filteredProducts = products.filter((item) => {
+    // Category filter
+    const matchesCategory =
+      selectedCategory === "all" || item.category === selectedCategory;
+
+    // Search query filter (matches Bengali name or English slug)
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      item.nameBn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.categoryNameBn.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <section id="সব-পণ্য" className="py-12 sm:py-16 scroll-mt-24">
+      {/* Header with Title and Subtitle */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-6 border-b border-slate-200">
+        <div>
+          <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md mb-2 border border-emerald-200">
+            <span>🛒 সম্পূর্ণ তালিকা</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+            সব পণ্য
+          </h2>
+          <p className="text-sm sm:text-base text-slate-500 mt-1">
+            দৈনন্দিন বাজারের সকল নিত্যপ্রয়োজনীয় পণ্যের সর্বশেষ মূল্য তালিকা
+          </p>
+        </div>
+
+        {/* Search input field */}
+        <div className="relative w-full md:w-72">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="পণ্য খুঁজুন (যেমন: চাল, পেঁয়াজ)..."
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-900 placeholder-slate-400 shadow-xs"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+            >
+              মুছুন
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Category Filter Chips/Tabs */}
+      <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
+        <button
+          onClick={() => setSelectedCategory("all")}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+            selectedCategory === "all"
+              ? "bg-emerald-600 text-white shadow-emerald-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+          }`}
+        >
+          সব পণ্য ({toBnNum(products.length)})
+        </button>
+
+        {categories.map((cat) => {
+          const count = products.filter((p) => p.category === cat.slug).length;
+          const isSelected = selectedCategory === cat.slug;
+
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.slug)}
+              className={`inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+                isSelected
+                  ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              }`}
+            >
+              <span>{cat.icon}</span>
+              <span>{cat.nameBn}</span>
+              <span
+                className={`text-[11px] px-1.5 py-0.2 rounded-full ${
+                  isSelected ? "bg-emerald-700 text-emerald-100" : "bg-slate-100 text-slate-500"
+                }`}
+              >
+                {toBnNum(count)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Result Count and Quick Info */}
+      <div className="flex items-center justify-between text-xs text-slate-500 mb-6 font-medium">
+        <span>
+          মোট{" "}
+          <strong className="text-slate-800 font-bold">
+            {toBnNum(filteredProducts.length)}
+          </strong>{" "}
+          টি পণ্য প্রদর্শিত হচ্ছে
+        </span>
+        {(selectedCategory !== "all" || searchQuery) && (
+          <button
+            onClick={() => {
+              setSelectedCategory("all");
+              setSearchQuery("");
+            }}
+            className="text-emerald-600 hover:text-emerald-700 font-semibold inline-flex items-center space-x-1"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            <span>সব রিসেট করুন</span>
+          </button>
+        )}
+      </div>
+
+      {/* 3-4 Columns Responsive Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {loading ? (
+          Array.from({ length: 8 }).map((_, idx) => (
+            <ProductCardSkeleton key={`all-skel-${idx}`} />
+          ))
+        ) : filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <ProductCard key={`all-prod-${product.id}`} product={product} />
+          ))
+        ) : (
+          <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+            <span className="text-4xl">🔍</span>
+            <h3 className="text-lg font-bold text-slate-800">
+              কোনো পণ্য পাওয়া যায়নি
+            </h3>
+            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+              আপনার খোঁজা পণ্যটি এই মুহূর্তে পাওয়া যাচ্ছে না। অন্য নাম দিয়ে চেষ্টা করুন।
+            </p>
+            <button
+              onClick={() => {
+                setSelectedCategory("all");
+                setSearchQuery("");
+              }}
+              className="mt-2 px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700 transition-colors"
+            >
+              সব পণ্য দেখুন
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
