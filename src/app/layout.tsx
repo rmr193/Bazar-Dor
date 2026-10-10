@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Hind_Siliguri } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/AuthContext";
+import Navbar from "@/components/Navbar";
+import PriceTicker from "@/components/PriceTicker";
 import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
@@ -25,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bn" className={hindSiliguri.variable}>
-      <body className="min-h-screen flex flex-col font-bengali">
+      <body className="min-h-screen flex flex-col font-bengali bg-slate-50 text-slate-900">
         <AuthProvider>
           <Toaster
             position="top-right"
@@ -53,7 +55,16 @@ export default function RootLayout({
               },
             }}
           />
-          {children}
+          {/* Main Top Navbar */}
+          <Navbar />
+
+          {/* Marquee Price Ticker right below navbar */}
+          <PriceTicker />
+
+          {/* Page content */}
+          <div className="flex-1">
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>
