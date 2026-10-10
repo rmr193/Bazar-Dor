@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hind_Siliguri } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
@@ -25,33 +26,35 @@ export default function RootLayout({
   return (
     <html lang="bn" className={hindSiliguri.variable}>
       <body className="min-h-screen flex flex-col font-bengali">
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3500,
-            style: {
-              background: "#1e293b",
-              color: "#f8fafc",
-              borderRadius: "10px",
-              fontSize: "14px",
-              fontFamily: "var(--font-hind-siliguri)",
-              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-            },
-            success: {
-              iconTheme: {
-                primary: "#10b981",
-                secondary: "#ffffff",
+        <AuthProvider>
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3500,
+              style: {
+                background: "#1e293b",
+                color: "#f8fafc",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontFamily: "var(--font-hind-siliguri)",
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
               },
-            },
-            error: {
-              iconTheme: {
-                primary: "#ef4444",
-                secondary: "#ffffff",
+              success: {
+                iconTheme: {
+                  primary: "#10b981",
+                  secondary: "#ffffff",
+                },
               },
-            },
-          }}
-        />
-        {children}
+              error: {
+                iconTheme: {
+                  primary: "#ef4444",
+                  secondary: "#ffffff",
+                },
+              },
+            }}
+          />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
