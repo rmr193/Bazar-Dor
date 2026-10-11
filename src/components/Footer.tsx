@@ -193,26 +193,34 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* 3. Bottom Bar */}
-      <div className="border-t border-slate-800 bg-slate-950/60 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center space-x-2 text-center sm:text-left">
+      {/* 3. Figma Matching Footer Bar */}
+      <div className="border-t border-slate-800 bg-slate-950 py-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+          <div className="font-semibold text-slate-200 flex items-center space-x-2">
+            <span>🛒</span>
+            <span>বাজার দর — প্রয়োজনীয় পণ্যের দাম এক নজরে।</span>
+          </div>
+          <div className="text-slate-400 text-center md:text-right font-medium">
+            সকল দাম সম্ভাব্য; বাজার অবস্থার ওপর নির্ভর করে পরিবর্তিত হয়।
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Sub-bar with Copyright and Back to top */}
+      <div className="border-t border-slate-800/60 bg-black/40 py-3.5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
+          <div>
             <span>© ২০২৬ বাজার দর। সর্বস্বত্ব সংরক্ষিত।</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="hidden sm:inline flex items-center gap-1">
-              ভোক্তাদের ন্যায্যমূল্যের সুরক্ষায় নিবেদিত <Heart className="w-3 h-3 text-rose-500 fill-rose-500 inline ml-0.5" />
-            </span>
           </div>
 
-          {/* Back to top button */}
           <button
             onClick={scrollToTop}
             id="btn-back-to-top"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
             title="উপরে যান"
           >
             <span>উপরে যান</span>
-            <ArrowUp className="w-3.5 h-3.5" />
+            <ArrowUp className="w-3 h-3" />
           </button>
         </div>
       </div>
