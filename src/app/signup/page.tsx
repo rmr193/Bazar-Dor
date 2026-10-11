@@ -63,9 +63,7 @@ export default function SignUpPage() {
     setLoading(true);
     const success = await signUp(name.trim(), email.trim(), password);
     if (success) {
-      // Auto sign-in after registration
-      await signIn(email.trim(), password);
-      router.push("/profile");
+      router.push("/signin");
     }
     setLoading(false);
   };
@@ -76,7 +74,7 @@ export default function SignUpPage() {
     setSocialLoading(null);
 
     if (success) {
-      router.push("/profile");
+      router.push("/");
     }
   };
 

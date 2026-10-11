@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { LogIn, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTarget = searchParams?.get("redirect") || "/";
+
   const { signIn, signInSocial, user } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -32,16 +35,16 @@ export default function SignInPage() {
           </p>
           <div className="flex gap-2 justify-center pt-2">
             <Link
-              href="/profile"
+              href="/"
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors"
             >
-              প্রোফাইলে যান
+              হোম পেজে যান
             </Link>
             <Link
-              href="/"
+              href="/profile"
               className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
             >
-              হোম পেজ
+              প্রোফাইল
             </Link>
           </div>
         </div>
@@ -58,7 +61,7 @@ export default function SignInPage() {
     setLoading(false);
 
     if (success) {
-      router.push("/profile");
+      router.push(redirectTarget);
     }
   };
 
@@ -68,7 +71,7 @@ export default function SignInPage() {
     setSocialLoading(null);
 
     if (success) {
-      router.push("/profile");
+      router.push(redirectTarget);
     }
   };
 
@@ -228,5 +231,19 @@ export default function SignInPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[70vh] flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }
