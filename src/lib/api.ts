@@ -1,14 +1,19 @@
 import { Category, Product, SortOption } from "@/types";
 import { FALLBACK_CATEGORIES, FALLBACK_PRODUCTS } from "@/data/fallbackData";
 
-const BASE_URL_1 = "https://api.api-store.workers.dev/api/bazardor";
-const BASE_URL_2 = "https://api.abcz.workers.dev/api/bazardor";
+const BASE_URL = "https://openapi.programming-hero.com/api/bazardor";
+const FALLBACK_URL_1 = "https://api.api-store.workers.dev/api/bazardor";
+const FALLBACK_URL_2 = "https://api.abcz.workers.dev/api/bazardor";
 
 /**
- * Robust fetcher with dual-endpoint fallback and embedded backup
+ * Robust fetcher with primary endpoint, fallback mirrors, and embedded offline backup
  */
 async function fetchWithFallback<T>(endpoint: string, fallbackValue: T): Promise<T> {
-  const urls = [`${BASE_URL_1}${endpoint}`, `${BASE_URL_2}${endpoint}`];
+  const urls = [
+    `${BASE_URL}${endpoint}`,
+    `${FALLBACK_URL_1}${endpoint}`,
+    `${FALLBACK_URL_2}${endpoint}`,
+  ];
 
   for (const url of urls) {
     try {
