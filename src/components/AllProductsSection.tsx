@@ -53,15 +53,12 @@ export default function AllProductsSection() {
   return (
     <section id="সব-পণ্য" className="py-12 sm:py-16 scroll-mt-24">
       {/* Header with Title and Subtitle */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-6 border-b border-slate-200">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md mb-2 border border-emerald-200">
-            <span>🛒 সম্পূর্ণ তালিকা</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             সব পণ্য
           </h2>
-          <p className="text-sm sm:text-base text-slate-500 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             দৈনন্দিন বাজারের সকল নিত্যপ্রয়োজনীয় পণ্যের সর্বশেষ মূল্য তালিকা
           </p>
         </div>
@@ -74,7 +71,7 @@ export default function AllProductsSection() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="পণ্য খুঁজুন (যেমন: চাল, পেঁয়াজ)..."
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-900 placeholder-slate-400 shadow-xs"
+            className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] text-slate-900 placeholder-slate-400 shadow-xs"
           />
           {searchQuery && (
             <button
@@ -91,9 +88,9 @@ export default function AllProductsSection() {
       <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
         <button
           onClick={() => setSelectedCategory("all")}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+          className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
             selectedCategory === "all"
-              ? "bg-emerald-600 text-white shadow-emerald-600/20"
+              ? "bg-[#057A44] text-white"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
           }`}
         >
@@ -108,9 +105,9 @@ export default function AllProductsSection() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
-              className={`inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+              className={`inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
                 isSelected
-                  ? "bg-emerald-600 text-white shadow-emerald-600/20"
+                  ? "bg-[#057A44] text-white"
                   : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
               }`}
             >
@@ -118,7 +115,7 @@ export default function AllProductsSection() {
               <span>{cat.nameBn}</span>
               <span
                 className={`text-[11px] px-1.5 py-0.2 rounded-full ${
-                  isSelected ? "bg-emerald-700 text-emerald-100" : "bg-slate-100 text-slate-500"
+                  isSelected ? "bg-[#04683A] text-emerald-100" : "bg-slate-100 text-slate-500"
                 }`}
               >
                 {toBnNum(count)}

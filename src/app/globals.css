@@ -9,7 +9,7 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col;
+    @apply bg-[#f3f5f2] text-slate-900 antialiased min-h-screen flex flex-col;
   }
 }
 
@@ -31,9 +31,4 @@
 
 .animate-marquee:hover {
   animation-play-state: paused;
-}
-
-/* Skeleton loader pulse */
-.skeleton {
-  @apply animate-pulse bg-slate-200 rounded;
 }
