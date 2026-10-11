@@ -13,6 +13,36 @@ const bnDigits: { [key: string]: string } = {
   "9": "৯",
 };
 
+const bnToEnDigits: { [key: string]: string } = {
+  "০": "0",
+  "১": "1",
+  "২": "2",
+  "৩": "3",
+  "৪": "4",
+  "৫": "5",
+  "৬": "6",
+  "৭": "7",
+  "৮": "8",
+  "৯": "9",
+};
+
+/**
+ * Converts Bengali numerals or strings into native JavaScript numbers.
+ * Example: "১,৮৫০" -> 1850; "৭৫.৫" -> 75.5; "১২০ টাকা" -> 120
+ */
+export function parseBnNum(val: number | string | undefined | null): number {
+  if (val === undefined || val === null) return 0;
+  if (typeof val === "number") return isNaN(val) ? 0 : val;
+
+  const str = val.toString().trim();
+  const normalized = str
+    .replace(/[০-৯]/g, (char) => bnToEnDigits[char] || char)
+    .replace(/[^0-9.-]/g, "");
+
+  const num = parseFloat(normalized);
+  return isNaN(num) ? 0 : num;
+}
+
 /**
  * Converts English numbers or formatted strings to Bengali numerals.
  * Example: 1850 -> ১,৮৫০; 2.5 -> ২.৫

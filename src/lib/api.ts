@@ -1,5 +1,6 @@
 import { Category, Product, SortOption } from "@/types";
 import { FALLBACK_CATEGORIES, FALLBACK_PRODUCTS } from "@/data/fallbackData";
+import { parseBnNum } from "@/lib/bengali";
 
 const BASE_URL = "https://openapi.programming-hero.com/api/bazardor";
 const FALLBACK_URL_1 = "https://api.api-store.workers.dev/api/bazardor";
@@ -131,20 +132,21 @@ export async function getTopFallers(limit: number = 6): Promise<Product[]> {
 
 /**
  * Sort products numerically (Challenge C1)
+ * Correctly converts Bengali numerals to numeric values before comparing
  */
 export function sortProducts(products: Product[], sort: SortOption): Product[] {
   const list = [...products];
 
   switch (sort) {
     case "price-asc":
-      // দাম: কম থেকে বেশি (Numeric sort)
-      return list.sort((a, b) => Number(a.today) - Number(b.today));
+      // দাম: কম থেকে বেশি (Numeric sort handling Bengali & English numbers)
+      return list.sort((a, b) => parseBnNum(a.today) - parseBnNum(b.today));
     case "price-desc":
-      // দাম: বেশি থেকে কম (Numeric sort)
-      return list.sort((a, b) => Number(b.today) - Number(a.today));
+      // দাম: বেশি থেকে কম (Numeric sort handling Bengali & English numbers)
+      return list.sort((a, b) => parseBnNum(b.today) - parseBnNum(a.today));
     case "default":
     default:
       // ডিফল্ট
-      return list.sort((a, b) => a.id - b.id);
+      return list.sort((a, b) => parseBnNum(a.id) - parseBnNum(b.id));
   }
 }
