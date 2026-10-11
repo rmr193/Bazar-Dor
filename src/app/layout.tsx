@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Hind_Siliguri } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import PriceTicker from "@/components/PriceTicker";
 import Footer from "@/components/Footer";
 import "./globals.css";
-
-const hindSiliguri = Hind_Siliguri({
-  weight: ["300", "400", "500", "600", "700"],
-  subsets: ["bengali", "latin"],
-  display: "swap",
-  variable: "--font-hind-siliguri",
-});
 
 export const metadata: Metadata = {
   title: "বাজার দর - দৈনন্দিন পণ্যের সঠিক বাজার মূল্য",
@@ -27,8 +19,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="bn" className={hindSiliguri.variable}>
-      <body className="min-h-screen flex flex-col font-bengali bg-slate-50 text-slate-900">
+    <html lang="bn">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen flex flex-col font-sans bg-[#f3f5f2] text-slate-900">
         <AuthProvider>
           <Toaster
             position="top-right"
@@ -39,7 +39,6 @@ export default function RootLayout({
                 color: "#f8fafc",
                 borderRadius: "10px",
                 fontSize: "14px",
-                fontFamily: "var(--font-hind-siliguri)",
                 boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
               },
               success: {
