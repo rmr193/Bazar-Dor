@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Product } from "@/types";
 import { getProduct, getProducts } from "@/lib/api";
@@ -35,8 +36,10 @@ import {
 } from "lucide-react";
 
 export default function ProductDetailsPage() {
+  const router = useRouter();
   const params = useParams();
   const slug = (params?.slug as string) || "";
+  const { user, isLoading: authLoading } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -44,6 +47,14 @@ export default function ProductDetailsPage() {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [selectedDivision, setSelectedDivision] = useState<string>("all");
   const [marketSearch, setMarketSearch] = useState<string>("");
+
+  // Protected Route Check (Requirement 4)
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error("পণ্যের বিস্তারিত বিবরণ দেখতে অনুগ্রহ করে সাইন ইন করুন");
+      router.push(`/signin?redirect=/product/${slug}`);
+    }
+  }, [authLoading, user, router, slug]);
 
   // Load product data & related category products
   useEffect(() => {
@@ -132,7 +143,7 @@ export default function ProductDetailsPage() {
   };
 
   // Loading skeleton state
-  if (loading) {
+  if (authLoading || (!user && !authLoading) || loading) {
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 min-h-[70vh]">
         {/* Breadcrumb Skeleton */}
