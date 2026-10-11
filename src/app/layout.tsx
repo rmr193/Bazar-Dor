@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import PriceTicker from "@/components/PriceTicker";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
@@ -65,6 +66,9 @@ export default function RootLayout({
           <div className="flex-1">
             {children}
           </div>
+
+          {/* Main Footer */}
+          <Footer />
         </AuthProvider>
       </body>
     </html>
