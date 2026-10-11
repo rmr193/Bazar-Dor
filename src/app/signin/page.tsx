@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -16,9 +16,19 @@ function SignInContent() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
+  // Safely redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      window.location.href = redirectTarget;
+    }
+  }, [user, redirectTarget]);
+
   if (user) {
-    router.push(redirectTarget);
-    return null;
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-[#057A44] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +40,7 @@ function SignInContent() {
     setLoading(false);
 
     if (success) {
-      router.push(redirectTarget);
+      window.location.href = redirectTarget;
     }
   };
 
@@ -40,7 +50,7 @@ function SignInContent() {
     setSocialLoading(null);
 
     if (success) {
-      router.push(redirectTarget);
+      window.location.href = redirectTarget;
     }
   };
 

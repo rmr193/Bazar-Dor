@@ -10,6 +10,8 @@ export interface User {
 }
 
 const STORAGE_KEY = "bazardor_user";
+const DEFAULT_AVATAR =
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80";
 
 // Helper to get currently saved user from localStorage
 export function getStoredUser(): User | null {
@@ -48,7 +50,7 @@ export const authClient = {
       id: "user_" + Date.now(),
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+      image: DEFAULT_AVATAR,
       createdAt: new Date().toISOString(),
     };
 
@@ -73,39 +75,57 @@ export const authClient = {
     }
 
     if (typeof window !== "undefined") {
+      const cleanEmail = email.trim().toLowerCase();
+
+      // Check registered users
       const allUsers = JSON.parse(localStorage.getItem("bazardor_registered_users") || "[]");
       const matched = allUsers.find(
-        (u: any) => u.email === email.trim().toLowerCase() && u.password === password
+        (u: any) => u.email === cleanEmail && u.password === password
       );
 
-      // If matched registered user
       if (matched) {
         const user: User = {
           id: matched.id,
           name: matched.name,
           email: matched.email,
-          image: matched.image,
+          image: matched.image || DEFAULT_AVATAR,
           createdAt: matched.createdAt,
         };
         setStoredUser(user);
         return { data: { user } };
       }
 
-      // Default demo login for examiner convenience
-      // Accepts demo credentials or standard inputs
-      if (email.includes("@") && password.length >= 6) {
+      // Check Figma default demo user
+      if (cleanEmail === "rezwanahmed@gmail.com") {
+        const rezwanUser: User = {
+          id: "user_rezwan",
+          name: "Rezwan Ahmed",
+          email: "rezwanahmed@gmail.com",
+          image: DEFAULT_AVATAR,
+          createdAt: new Date().toISOString(),
+        };
+        setStoredUser(rezwanUser);
+        return { data: { user: rezwanUser } };
+      }
+
+      // Universal valid user for any email
+      if (cleanEmail.includes("@")) {
+        const namePart = cleanEmail.split("@")[0];
+        const formattedName =
+          namePart.charAt(0).toUpperCase() + namePart.slice(1);
+
         const demoUser: User = {
-          id: "user_demo",
-          name: email.split("@")[0].toUpperCase() || "ব্যবহারকারী",
-          email: email.trim().toLowerCase(),
-          image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`,
+          id: "user_" + Date.now(),
+          name: formattedName || "ব্যবহারকারী",
+          email: cleanEmail,
+          image: DEFAULT_AVATAR,
           createdAt: new Date().toISOString(),
         };
         setStoredUser(demoUser);
         return { data: { user: demoUser } };
       }
 
-      throw new Error("ইমেইল বা পাসওয়ার্ড সঠিক নয় (পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে)");
+      throw new Error("সঠিক ইমেইল ঠিকানা দিন (যেমন: you@example.com)");
     }
 
     throw new Error("লগইন সম্পন্ন করা যায়নি");
@@ -113,15 +133,11 @@ export const authClient = {
 
   // Social Sign In (Google / GitHub)
   async signInSocial({ provider }: { provider: "google" | "github" }) {
-    const providerName = provider === "google" ? "গুগল" : "গিটহাব";
     const socialUser: User = {
       id: `user_${provider}_` + Date.now(),
-      name: `${providerName} ব্যবহারকারী`,
-      email: `${provider}@bazardor.com`,
-      image:
-        provider === "google"
-          ? "https://www.svgrepo.com/show/475656/google-color.svg"
-          : "https://www.svgrepo.com/show/512317/github-142.svg",
+      name: "Rezwan Ahmed",
+      email: "rezwanahmed@gmail.com",
+      image: DEFAULT_AVATAR,
       createdAt: new Date().toISOString(),
     };
 
@@ -149,7 +165,6 @@ export const authClient = {
     const updatedUser: User = {
       ...current,
       name: name.trim(),
-      image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name.trim())}`,
     };
 
     setStoredUser(updatedUser);
@@ -160,7 +175,6 @@ export const authClient = {
       const idx = allUsers.findIndex((u: User) => u.id === current.id || u.email === current.email);
       if (idx !== -1) {
         allUsers[idx].name = name.trim();
-        allUsers[idx].image = updatedUser.image;
         localStorage.setItem("bazardor_registered_users", JSON.stringify(allUsers));
       }
     }

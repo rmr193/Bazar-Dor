@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -17,9 +17,18 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/";
+    }
+  }, [user]);
+
   if (user) {
-    router.push("/");
-    return null;
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-[#057A44] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +50,7 @@ export default function SignUpPage() {
     setLoading(false);
 
     if (success) {
-      router.push("/signin");
+      window.location.href = "/signin";
     }
   };
 
@@ -51,7 +60,7 @@ export default function SignUpPage() {
     setSocialLoading(null);
 
     if (success) {
-      router.push("/");
+      window.location.href = "/";
     }
   };
 
