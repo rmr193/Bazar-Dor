@@ -248,8 +248,16 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Sign Out CTA */}
-          <div>
+          {/* Action CTAs: Update Profile (Challenge C3) & Sign Out */}
+          <div className="flex items-center space-x-2.5 flex-wrap gap-y-2">
+            <Link
+              href="/profile/update"
+              id="btn-update-profile"
+              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center space-x-1.5 hover:scale-105"
+            >
+              <Edit2 className="w-4 h-4" />
+              <span>তথ্য আপডেট করুন (Update)</span>
+            </Link>
             <button
               onClick={() => signOut()}
               className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition-colors flex items-center space-x-1.5 shadow-xs"
