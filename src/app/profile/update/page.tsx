@@ -56,19 +56,19 @@ export default function UpdateProfilePage() {
   }
 
   return (
-    <main className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-12">
+    <main className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-8 sm:py-12">
       {/* Title & Subtitle */}
-      <div className="text-center mb-6">
+      <div className="text-center mb-5 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
           তথ্য আপডেট
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          আপনার প্রোফাইলের নাম পরিবর্তন করুন (BetterAuth Update User)
+        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 px-2">
+          আপনার প্রোফাইলের নাম পরিবর্তন করুন
         </p>
       </div>
 
       {/* Main Form Card */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200/80 shadow-xs">
         {/* Error banner if any */}
         {formError && (
           <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-600 font-semibold flex items-center space-x-2">
@@ -84,7 +84,7 @@ export default function UpdateProfilePage() {
               htmlFor="input-update-name"
               className="block text-xs font-semibold text-slate-700 mb-1.5"
             >
-              নাম (Name)
+              নাম
             </label>
             <input
               id="input-update-name"
@@ -96,20 +96,20 @@ export default function UpdateProfilePage() {
                 setName(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium text-slate-900 placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium text-slate-900 placeholder:text-slate-400"
             />
           </div>
 
           {/* Email read-only display */}
           <div>
             <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-              ইমেইল (Email)
+              ইমেইল
             </label>
             <input
               type="email"
               disabled
               value={user.email}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-400 font-medium cursor-not-allowed"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-400 font-medium cursor-not-allowed"
             />
           </div>
 
@@ -118,12 +118,12 @@ export default function UpdateProfilePage() {
             id="btn-update-information"
             type="submit"
             disabled={updating}
-            className="w-full py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-3 flex items-center justify-center space-x-2"
+            className="w-full py-3 sm:py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-3 flex items-center justify-center space-x-2 min-h-[44px]"
           >
             {updating ? (
               <span>তথ্য আপডেট হচ্ছে...</span>
             ) : (
-              <span>Update Information</span>
+              <span>তথ্য আপডেট করুন</span>
             )}
           </button>
         </form>

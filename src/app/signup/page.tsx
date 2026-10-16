@@ -37,21 +37,21 @@ export default function SignUpPage() {
 
     // Form validations
     if (!name.trim() || !email.trim() || !password) {
-      const msg = "সকল প্রয়োজনীয় তথ্য পূরণ করুন (Please fill in all required fields)";
+      const msg = "সকল প্রয়োজনীয় তথ্য পূরণ করুন";
       setFormError(msg);
       toast.error(msg);
       return;
     }
 
     if (!email.includes("@") || !email.includes(".")) {
-      const msg = "সঠিক ইমেইল ঠিকানা দিন (Please enter a valid email address)";
+      const msg = "সঠিক ইমেইল ঠিকানা দিন";
       setFormError(msg);
       toast.error(msg);
       return;
     }
 
     if (password.length < 6) {
-      const msg = "পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে (Password must be at least 6 characters)";
+      const msg = "পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে";
       setFormError(msg);
       toast.error(msg);
       return;
@@ -62,13 +62,12 @@ export default function SignUpPage() {
     setSubmitting(false);
 
     if (result.success) {
-      // Examiner rubric: "If the user Register successfully then navigate him to his login page."
       router.push("/signin");
       router.refresh();
     } else {
       setFormError(
         result.error ||
-          "রেজিস্ট্রেশন সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন। (Registration failed)"
+          "রেজিস্ট্রেশন সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।"
       );
     }
   };
@@ -80,30 +79,30 @@ export default function SignUpPage() {
     setSocialLoading(null);
 
     if (result.success) {
-      // Social login navigates user to Home page
+      // Social sign-in navigates the user to the home page
       router.push("/");
       router.refresh();
     } else {
       setFormError(
-        result.error || "সোশ্যাল লগইন সম্পন্ন করা যায়নি। (Social login failed)"
+        result.error || "সোশ্যাল লগইন সম্পন্ন করা যায়নি।"
       );
     }
   };
 
   return (
-    <main className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-12">
-      {/* Title for Registration */}
-      <div className="text-center mb-6">
+    <main className="min-h-[85vh] flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      {/* Title */}
+      <div className="text-center mb-5 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          রেজিস্ট্রেশন / Sign Up
+          রেজিস্ট্রেশন
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
-          বাজার দর অ্যাপে নতুন অ্যাকাউন্ট তৈরি করুন (Create an account)
+        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 px-2">
+          বাজার দর অ্যাপে নতুন অ্যাকাউন্ট তৈরি করুন
         </p>
       </div>
 
       {/* Main Form Card */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200/80 shadow-xs">
         {/* Form Error Banner */}
         {formError && (
           <div
@@ -122,19 +121,19 @@ export default function SignUpPage() {
               htmlFor="input-name"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              নাম (Name)
+              নাম
             </label>
             <input
               id="input-name"
               type="text"
               required
-              placeholder="যেমন: রহিম উদ্দিন (Full Name)"
+              placeholder="যেমন: রহিম উদ্দিন"
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
             />
           </div>
 
@@ -144,7 +143,7 @@ export default function SignUpPage() {
               htmlFor="input-signup-email"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              ইমেইল (Email)
+              ইমেইল
             </label>
             <input
               id="input-signup-email"
@@ -156,7 +155,7 @@ export default function SignUpPage() {
                 setEmail(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
             />
           </div>
 
@@ -166,20 +165,20 @@ export default function SignUpPage() {
               htmlFor="input-signup-password"
               className="block text-xs font-semibold text-slate-700 mb-1"
             >
-              পাসওয়ার্ড (Password)
+              পাসওয়ার্ড
             </label>
             <input
               id="input-signup-password"
               type="password"
               required
               minLength={6}
-              placeholder="কমপক্ষে ৬ অক্ষর (Min 6 characters)"
+              placeholder="কমপক্ষে ৬ অক্ষর"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
             />
           </div>
 
@@ -188,9 +187,9 @@ export default function SignUpPage() {
             id="btn-submit-signup"
             type="submit"
             disabled={submitting}
-            className="w-full py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-3"
+            className="w-full py-3 sm:py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-3 min-h-[44px]"
           >
-            {submitting ? "রেজিস্ট্রেশন হচ্ছে..." : "রেজিস্টার করুন (Register Button)"}
+            {submitting ? "রেজিস্ট্রেশন হচ্ছে..." : "রেজিস্টার করুন"}
           </button>
         </form>
 
@@ -200,7 +199,7 @@ export default function SignUpPage() {
             <div className="w-full border-t border-slate-100"></div>
           </div>
           <span className="relative bg-white px-3 text-[11px] text-slate-400">
-            অথবা সোশ্যাল লগইন (Or Social Login)
+            অথবা সোশ্যাল লগইন
           </span>
         </div>
 
@@ -225,13 +224,13 @@ export default function SignUpPage() {
         {/* Link for Login */}
         <div className="text-center mt-6">
           <p className="text-xs text-slate-600">
-            ইতিমধ্যে অ্যাকাউন্ট আছে? (Already have an account?){" "}
+            ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
             <Link
               id="link-go-to-signin"
               href="/signin"
               className="text-[#057A44] font-bold hover:underline"
             >
-              লগইন করুন (Login)
+              লগইন করুন
             </Link>
           </p>
         </div>

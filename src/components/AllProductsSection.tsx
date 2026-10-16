@@ -40,11 +40,9 @@ export default function AllProductsSection() {
   const filteredProducts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return products.filter((item) => {
-      // Category filter
       const matchesCategory =
         selectedCategory === "all" || item.category === selectedCategory;
 
-      // Search query filter (matches Bengali name or English slug)
       const matchesSearch =
         q === "" ||
         item.nameBn.toLowerCase().includes(q) ||
@@ -70,11 +68,11 @@ export default function AllProductsSection() {
   }, [products]);
 
   return (
-    <section id="সব-পণ্য" className="py-12 sm:py-16 scroll-mt-24">
+    <section id="সব-পণ্য" className="py-8 sm:py-12 lg:py-16 scroll-mt-24">
       {/* Header with Title and Subtitle */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-black text-slate-900 tracking-tight">
             সব পণ্য
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
@@ -82,36 +80,35 @@ export default function AllProductsSection() {
           </p>
         </div>
 
-        {/* Search input field & Sort Dropdown */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          {/* Search */}
+        {/* Search + Sort: stack on mobile, inline on sm+ */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
-              type="text"
+              type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="পণ্য খুঁজুন (যেমন: চাল, তেল)..."
-              className="w-full pl-10 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] text-slate-900 placeholder-slate-400 shadow-xs"
+              className="w-full pl-10 pr-9 py-2.5 sm:py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] text-slate-900 placeholder-slate-400 shadow-xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 py-1 px-1"
+                aria-label="অনুসন্ধান মুছুন"
               >
                 মুছুন
               </button>
             )}
           </div>
 
-          {/* Sort dropdown with Chevron */}
-          <div className="relative min-w-[170px]">
+          <div className="relative w-full sm:min-w-[170px] sm:w-auto">
             <select
               id="home-sort-select"
               aria-label="সাজান"
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as SortOption)}
-              className="w-full appearance-none bg-white border border-slate-200 text-slate-800 text-xs sm:text-sm font-medium rounded-xl pl-3.5 pr-8 py-2 focus:outline-none focus:border-[#057A44] shadow-xs cursor-pointer transition-colors"
+              className="w-full appearance-none bg-white border border-slate-200 text-slate-800 text-sm font-medium rounded-xl pl-3.5 pr-8 py-2.5 sm:py-2 focus:outline-none focus:border-[#057A44] shadow-xs cursor-pointer transition-colors"
             >
               <option value="default">সাজান: ডিফল্ট</option>
               <option value="price-asc">দাম: কম থেকে বেশি</option>
@@ -122,11 +119,15 @@ export default function AllProductsSection() {
         </div>
       </div>
 
-      {/* Category Filter Chips/Tabs */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
+      {/* Category Filter Chips/Tabs — horizontally scrollable, touch-friendly */}
+      <div
+        className="flex items-center space-x-2 overflow-x-auto pb-3 mb-5 sm:mb-6 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0"
+        role="tablist"
+        aria-label="ক্যাটাগরি ফিল্টার"
+      >
         <button
           onClick={() => setSelectedCategory("all")}
-          className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+          className={`shrink-0 px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs min-h-[40px] ${
             selectedCategory === "all"
               ? "bg-[#057A44] text-white"
               : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
@@ -143,7 +144,7 @@ export default function AllProductsSection() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
-              className={`inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs ${
+              className={`shrink-0 inline-flex items-center space-x-1.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap shadow-xs min-h-[40px] ${
                 isSelected
                   ? "bg-[#057A44] text-white"
                   : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
@@ -164,7 +165,7 @@ export default function AllProductsSection() {
       </div>
 
       {/* Result Count and Reset Button */}
-      <div className="flex items-center justify-between text-xs text-slate-500 mb-6 font-medium">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500 mb-5 sm:mb-6 font-medium">
         <span>
           মোট{" "}
           <strong className="text-slate-800 font-bold">
@@ -179,7 +180,7 @@ export default function AllProductsSection() {
               setSearchQuery("");
               setSortOption("default");
             }}
-            className="text-[#057A44] hover:text-[#04683A] font-semibold inline-flex items-center space-x-1"
+            className="self-start sm:self-auto text-[#057A44] hover:text-[#04683A] font-semibold inline-flex items-center space-x-1 py-1"
           >
             <RefreshCw className="w-3 h-3 mr-1" />
             <span>সব রিসেট করুন</span>
@@ -187,8 +188,8 @@ export default function AllProductsSection() {
         )}
       </div>
 
-      {/* 3-4 Columns Responsive Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {/* 2-4 Columns Responsive Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
         {loading ? (
           Array.from({ length: 8 }).map((_, idx) => (
             <ProductCardSkeleton key={`all-skel-${idx}`} />
@@ -198,12 +199,12 @@ export default function AllProductsSection() {
             <ProductCard key={`all-prod-${product.id}`} product={product} />
           ))
         ) : (
-          <div className="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
+          <div className="col-span-full py-12 sm:py-16 text-center bg-white rounded-2xl sm:rounded-3xl border border-slate-200 space-y-3 px-4">
             <span className="text-4xl">🔍</span>
-            <h3 className="text-lg font-bold text-slate-800">
+            <h3 className="text-base sm:text-lg font-bold text-slate-800">
               কোনো পণ্য পাওয়া যায়নি
             </h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
               আপনার খোঁজা পণ্যটি এই মুহূর্তে পাওয়া যাচ্ছে না। অন্য নাম দিয়ে চেষ্টা করুন।
             </p>
             <button
@@ -212,7 +213,7 @@ export default function AllProductsSection() {
                 setSearchQuery("");
                 setSortOption("default");
               }}
-              className="mt-2 px-4 py-2 bg-[#057A44] text-white text-xs font-bold rounded-lg hover:bg-[#04683A] transition-colors"
+              className="mt-2 px-4 py-2.5 bg-[#057A44] text-white text-xs font-bold rounded-lg hover:bg-[#04683A] transition-colors"
             >
               সব পণ্য দেখুন
             </button>

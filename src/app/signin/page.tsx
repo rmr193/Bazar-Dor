@@ -38,14 +38,14 @@ function SignInContent() {
 
     // Form validation
     if (!email.trim() || !password) {
-      const msg = "অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন (Please enter email & password)";
+      const msg = "অনুগ্রহ করে ইমেইল এবং পাসওয়ার্ড দিন";
       setFormError(msg);
       toast.error(msg);
       return;
     }
 
     if (!email.includes("@") || !email.includes(".")) {
-      const msg = "সঠিক ইমেইল ঠিকানা দিন (Please enter a valid email address)";
+      const msg = "সঠিক ইমেইল ঠিকানা দিন";
       setFormError(msg);
       toast.error(msg);
       return;
@@ -62,7 +62,7 @@ function SignInContent() {
     } else {
       setFormError(
         result.error ||
-          "ইমেইল বা পাসওয়ার্ড সঠিক নয়। অনুগ্রহ করে পুনরায় চেষ্টা করুন। (Invalid email or password)"
+          "ইমেইল বা পাসওয়ার্ড সঠিক নয়। অনুগ্রহ করে পুনরায় চেষ্টা করুন।"
       );
     }
   };
@@ -74,7 +74,7 @@ function SignInContent() {
     setSocialLoading(null);
 
     if (result.success) {
-      // Social login navigates user to Home page
+      // Social sign-in navigates the user to the home page
       router.push("/");
       router.refresh();
     } else {
@@ -85,19 +85,19 @@ function SignInContent() {
   };
 
   return (
-    <main className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-12">
-      {/* Title for Login */}
-      <div className="text-center mb-6">
+    <main className="min-h-[80vh] flex flex-col items-center justify-center px-4 py-8 sm:py-12">
+      {/* Title */}
+      <div className="text-center mb-5 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-          লগইন / Sign In
+          লগইন
         </h1>
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs sm:text-sm text-slate-500 mt-1.5 px-2">
           বাজার দর ও পণ্য তুলনা দেখতে আপনার অ্যাকাউন্টে লগইন করুন
         </p>
       </div>
 
       {/* Main Form Card */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs">
+      <div className="w-full max-w-sm sm:max-w-md bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200/80 shadow-xs">
         {/* Form Error Message Banner */}
         {formError && (
           <div
@@ -115,7 +115,7 @@ function SignInContent() {
               htmlFor="input-email"
               className="block text-xs font-semibold text-slate-700 mb-1.5"
             >
-              ইমেইল (Email)
+              ইমেইল
             </label>
             <input
               id="input-email"
@@ -127,7 +127,7 @@ function SignInContent() {
                 setEmail(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
             />
           </div>
 
@@ -136,30 +136,30 @@ function SignInContent() {
               htmlFor="input-password"
               className="block text-xs font-semibold text-slate-700 mb-1.5"
             >
-              পাসওয়ার্ড (Password)
+              পাসওয়ার্ড
             </label>
             <input
               id="input-password"
               type="password"
               required
-              placeholder="কমপক্ষে ৬ অক্ষর (Min 6 characters)"
+              placeholder="কমপক্ষে ৬ অক্ষর"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
                 setFormError("");
               }}
-              className="w-full px-4 py-2.5 text-xs sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
+              className="w-full px-4 py-3 sm:py-2.5 text-base sm:text-sm bg-[#fafbfa] border border-slate-200 rounded-xl focus:outline-none focus:border-[#057A44] transition-colors font-medium placeholder:text-slate-400"
             />
           </div>
 
-          {/* Login Button */}
+          {/* Login Button — min 44px tall for touch targets */}
           <button
             id="btn-submit-signin"
             type="submit"
             disabled={submitting}
-            className="w-full py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-2"
+            className="w-full py-3 sm:py-2.5 bg-[#057A44] hover:bg-[#04683A] disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors shadow-xs mt-2 min-h-[44px]"
           >
-            {submitting ? "লগইন হচ্ছে..." : "লগইন (Sign In)"}
+            {submitting ? "লগইন হচ্ছে..." : "লগইন"}
           </button>
         </form>
 
@@ -169,7 +169,7 @@ function SignInContent() {
             <div className="w-full border-t border-slate-100"></div>
           </div>
           <span className="relative bg-white px-3 text-[11px] text-slate-400">
-            অথবা সোশ্যাল লগইন (Or Social Login)
+            অথবা সোশ্যাল লগইন
           </span>
         </div>
 
@@ -194,13 +194,13 @@ function SignInContent() {
         {/* Link for Register */}
         <div className="text-center mt-6">
           <p className="text-xs text-slate-600">
-            অ্যাকাউন্ট নেই? (Don&apos;t have an account?){" "}
+            অ্যাকাউন্ট নেই?{" "}
             <Link
               id="link-go-to-signup"
               href="/signup"
               className="text-[#057A44] font-bold hover:underline"
             >
-              রেজিস্টার করুন (Register)
+              রেজিস্টার করুন
             </Link>
           </p>
         </div>
