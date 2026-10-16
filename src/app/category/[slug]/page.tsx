@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Product, Category, SortOption } from "@/types";
 import { getCategoryBySlug, getProducts, sortProducts } from "@/lib/api";
-import { getSlugParam } from "@/lib/params";
 import { logger } from "@/lib/logger";
 import { toBnNum } from "@/lib/bengali";
 import ProductCard from "@/components/ProductCard";
@@ -13,8 +12,8 @@ import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import { ChevronDown, ArrowLeft, Home, Filter } from "lucide-react";
 
 export default function CategoryPage() {
-  const params = useParams();
-  const slug = getSlugParam(params?.slug as string | string[] | undefined);
+  const params = useParams<{ slug: string | string[] }>();
+  const slug = Array.isArray(params.slug) ? params.slug[0] ?? "" : params.slug ?? "";
 
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);

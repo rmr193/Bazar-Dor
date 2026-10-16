@@ -1,214 +1,130 @@
 import { PriceChange, Product, ProductPriceSummary } from "@/types";
 
-const bnDigits: { [key: string]: string } = {
-  "0": "০",
-  "1": "১",
-  "2": "২",
-  "3": "৩",
-  "4": "৪",
-  "5": "৫",
-  "6": "৬",
-  "7": "৭",
-  "8": "৮",
-  "9": "৯",
+// Bengali ↔ English digit lookup. Used to convert numbers like "১,৮৫০"
+// into the JS number 1850, and to format a JS number back to Bengali.
+const EN_TO_BN: Record<string, string> = {
+  "0": "০", "1": "১", "2": "২", "3": "৩", "4": "৪",
+  "5": "৫", "6": "৬", "7": "৭", "8": "৮", "9": "৯",
 };
+const BN_TO_EN: Record<string, string> = Object.fromEntries(
+  Object.entries(EN_TO_BN).map(([en, bn]) => [bn, en])
+);
 
-const bnToEnDigits: { [key: string]: string } = {
-  "০": "0",
-  "১": "1",
-  "২": "2",
-  "৩": "3",
-  "৪": "4",
-  "৫": "5",
-  "৬": "6",
-  "৭": "7",
-  "৮": "8",
-  "৯": "9",
-};
-
-/**
- * Converts Bengali numerals or strings into native JavaScript numbers.
- * Example: "১,৮৫০" -> 1850; "৭৫.৫" -> 75.5; "১২০ টাকা" -> 120
- */
 export function parseBnNum(val: number | string | undefined | null): number {
   if (val === undefined || val === null) return 0;
   if (typeof val === "number") return isNaN(val) ? 0 : val;
 
-  const str = val.toString().trim();
-  const normalized = str
-    .replace(/[০-৯]/g, (char) => bnToEnDigits[char] || char)
+  const normalized = val
+    .toString()
+    .replace(/[০-৯]/g, (c) => BN_TO_EN[c] || c)
     .replace(/[^0-9.-]/g, "");
 
   const num = parseFloat(normalized);
   return isNaN(num) ? 0 : num;
 }
 
-/**
- * Converts English numbers or formatted strings to Bengali numerals.
- * Example: 1850 -> ১,৮৫০; 2.5 -> ২.৫
- */
 export function toBnNum(val: number | string | undefined | null): string {
   if (val === undefined || val === null) return "০";
 
-  let str: string;
-  if (typeof val === "number") {
-    // Format with commas if integer or standard representation
-    str = Number.isInteger(val)
-      ? val.toLocaleString("en-US")
-      : val.toFixed(1).replace(/\.0$/, "");
-  } else {
-    str = val.toString();
-  }
+  const str =
+    typeof val === "number"
+      ? Number.isInteger(val)
+        ? val.toLocaleString("en-US")
+        : val.toFixed(1).replace(/\.0$/, "")
+      : val.toString();
 
-  return str
-    .split("")
-    .map((char) => (bnDigits[char] !== undefined ? bnDigits[char] : char))
-    .join("");
+  return str.replace(/\d/g, (d) => EN_TO_BN[d]);
 }
 
-/**
- * Format amount as Bengali currency
- * Example: 148 -> "১৪৮ টাকা"
- */
 export function toBnCurrency(val: number): string {
   return `${toBnNum(val)} টাকা`;
 }
 
-/**
- * Formats product unit into Bengali
- * Example: "kg" -> "প্রতি কেজি", "litre" -> "প্রতি লিটার"
- */
+const UNIT_LABELS: Record<string, string> = {
+  kg: "প্রতি কেজি",
+  litre: "প্রতি লিটার",
+  liter: "প্রতি লিটার",
+  dozen: "প্রতি ডজন",
+  piece: "প্রতি পিস",
+  gm: "প্রতি গ্রাম",
+  gram: "প্রতি গ্রাম",
+};
+
 export function getUnitBn(unit: string): string {
-  switch (unit?.toLowerCase()) {
-    case "kg":
-      return "প্রতি কেজি";
-    case "litre":
-    case "liter":
-      return "প্রতি লিটার";
-    case "dozen":
-      return "প্রতি ডজন";
-    case "piece":
-      return "প্রতি পিস";
-    case "gm":
-    case "gram":
-      return "প্রতি গ্রাম";
-    default:
-      return `প্রতি ${unit || "একক"}`;
-  }
+  return UNIT_LABELS[unit?.toLowerCase()] ?? `প্রতি ${unit || "একক"}`;
 }
 
-/**
- * Format change badge with direction and percentage
- */
 export function getChangeBadgeInfo(change: PriceChange) {
-  const absPct = Math.abs(change.pct);
-  const formattedPct = toBnNum(absPct.toFixed(1));
-
+  const pct = toBnNum(Math.abs(change.pct).toFixed(1));
   if (change.dir === "up") {
     return {
-      text: `▲ ${formattedPct}%`,
-      direction: "up",
+      text: `▲ ${pct}%`,
+      direction: "up" as const,
       colorClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
       textClass: "text-emerald-600",
       icon: "▲",
     };
-  } else if (change.dir === "down") {
+  }
+  if (change.dir === "down") {
     return {
-      text: `▼ ${formattedPct}%`,
-      direction: "down",
+      text: `▼ ${pct}%`,
+      direction: "down" as const,
       colorClass: "bg-rose-50 text-rose-700 border-rose-200",
       textClass: "text-rose-600",
       icon: "▼",
     };
   }
-
   return {
-    text: `— ০.০%`,
-    direction: "flat",
+    text: "— ০.০%",
+    direction: "flat" as const,
     colorClass: "bg-slate-100 text-slate-700 border-slate-200",
     textClass: "text-slate-600",
     icon: "—",
   };
 }
 
-/**
- * Calculate Bengali Calendar Date & Gregorian Date in Bengali
- */
+const BN_MONTHS = [
+  "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
+  "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর",
+];
+const BN_DAYS = [
+  "রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার",
+  "বৃহস্পতিবার", "শুক্রবার", "শনিবার",
+];
+
 export function getBanglaDate(targetDate: Date = new Date()): string {
-  const bnMonths = [
-    "জানুয়ারি",
-    "ফেব্রুয়ারি",
-    "মার্চ",
-    "এপ্রিল",
-    "মে",
-    "জুন",
-    "জুলাই",
-    "আগস্ট",
-    "সেপ্টেম্বর",
-    "অক্টোবর",
-    "নভেম্বর",
-    "ডিসেম্বর",
-  ];
-
-  const bnDays = [
-    "রবিবার",
-    "সোমবার",
-    "মঙ্গলবার",
-    "বুধবার",
-    "বৃহস্পতিবার",
-    "শুক্রবার",
-    "শনিবার",
-  ];
-
-  const dayName = bnDays[targetDate.getDay()];
+  const dayName = BN_DAYS[targetDate.getDay()];
   const day = toBnNum(targetDate.getDate());
-  const monthName = bnMonths[targetDate.getMonth()];
+  const month = BN_MONTHS[targetDate.getMonth()];
   const year = toBnNum(targetDate.getFullYear());
 
-  // Calculate approximate Bangla San (Bangla year = CE year - 593 or 594)
-  const gregorianYear = targetDate.getFullYear();
-  const gregorianMonth = targetDate.getMonth() + 1; // 1-12
-  const gregorianDay = targetDate.getDate();
+  // Bangla year = CE year - 593, except before Pohela Boishakh (Apr 14).
+  let banglaYear = targetDate.getFullYear() - 593;
+  const m = targetDate.getMonth() + 1;
+  if (m < 4 || (m === 4 && targetDate.getDate() < 14)) banglaYear -= 1;
 
-  // Simplified Bangla season/month calculation (Pohela Boishakh ~ April 14)
-  let banglaYear = gregorianYear - 593;
-  if (gregorianMonth < 4 || (gregorianMonth === 4 && gregorianDay < 14)) {
-    banglaYear -= 1;
-  }
-
-  return `${dayName}, ${day} ${monthName} ${year} বঙ্গাব্দ ${toBnNum(banglaYear)}`;
+  return `${dayName}, ${day} ${month} ${year} বঙ্গাব্দ ${toBnNum(banglaYear)}`;
 }
 
-/**
- * Calculates Min, Max, and Average price from market data or today's price
- */
 export function calculatePriceSummary(product: Product): ProductPriceSummary {
-  if (!product.markets || product.markets.length === 0) {
-    return {
-      minPrice: product.today,
-      maxPrice: product.today,
-      avgPrice: product.today,
-    };
+  if (!product.markets?.length) {
+    return { minPrice: product.today, maxPrice: product.today, avgPrice: product.today };
   }
 
   let min = Number.MAX_SAFE_INTEGER;
   let max = Number.MIN_SAFE_INTEGER;
-  let totalMin = 0;
-  let totalMax = 0;
+  let total = 0;
 
-  for (const market of product.markets) {
-    if (market.min < min) min = market.min;
-    if (market.max > max) max = market.max;
-    totalMin += market.min;
-    totalMax += market.max;
+  for (const m of product.markets) {
+    if (m.min < min) min = m.min;
+    if (m.max > max) max = m.max;
+    total += m.min + m.max;
   }
 
   const count = product.markets.length;
-  const avg = Math.round((totalMin + totalMax) / (count * 2));
-
   return {
-    minPrice: min === Number.MAX_SAFE_INTEGER ? product.today : min,
-    maxPrice: max === Number.MIN_SAFE_INTEGER ? product.today : max,
-    avgPrice: avg || product.today,
+    minPrice: min,
+    maxPrice: max,
+    avgPrice: Math.round(total / (count * 2)),
   };
 }

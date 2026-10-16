@@ -7,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Product } from "@/types";
 import { getProduct, getProducts } from "@/lib/api";
-import { getSlugParam } from "@/lib/params";
 import { logger } from "@/lib/logger";
 import {
   toBnNum,
@@ -20,7 +19,6 @@ import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import {
   Home,
-  ArrowLeft,
   Share2,
   Bookmark,
   BookmarkCheck,
@@ -33,14 +31,13 @@ import {
   AlertCircle,
   BarChart3,
   Search,
-  CheckCircle2,
   Sparkles,
 } from "lucide-react";
 
 export default function ProductDetailsPage() {
   const router = useRouter();
-  const params = useParams();
-  const slug = getSlugParam(params?.slug as string | string[] | undefined);
+  const params = useParams<{ slug: string | string[] }>();
+  const slug = Array.isArray(params.slug) ? params.slug[0] ?? "" : params.slug ?? "";
   const { user, isLoading: authLoading } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);

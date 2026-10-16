@@ -1,27 +1,22 @@
 import { auth, saveAuthDb } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
-import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
 
 const handlers = toNextJsHandler(auth);
 
-export async function GET(request: NextRequest) {
-  return handlers.GET(request);
-}
+export const GET = handlers.GET;
 
-export async function POST(request: NextRequest) {
+// Wrap POST so we can persist the in-memory DB after every mutating request.
+// `saveAuthDb` is best-effort (serverless filesystems are read-only); we log
+// but never fail the response.
+export const POST = async (request: Request) => {
   try {
-    const response = await handlers.POST(request);
-    // Best-effort persistence: serverless filesystems may be read-only.
-    // Surface the failure (so it appears in logs) but never fail the request.
+    return await handlers.POST(request);
+  } finally {
     try {
       saveAuthDb();
-    } catch (saveErr) {
-      logger.warn("saveAuthDb failed after POST", saveErr);
+    } catch (err) {
+      logger.warn("saveAuthDb failed after POST", err);
     }
-    return response;
-  } catch (handlerErr) {
-    logger.error("BetterAuth POST handler failed", handlerErr);
-    throw handlerErr;
   }
-}
+};

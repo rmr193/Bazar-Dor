@@ -10,7 +10,6 @@ export interface User {
 
 const STORAGE_KEY = "bazardor_user";
 
-// Helper to get currently saved user from localStorage
 export function getStoredUser(): User | null {
   if (typeof window === "undefined") return null;
   try {
@@ -21,7 +20,6 @@ export function getStoredUser(): User | null {
   }
 }
 
-// Helper to save user in localStorage
 export function setStoredUser(user: User | null): void {
   if (typeof window === "undefined") return;
   try {
@@ -31,16 +29,13 @@ export function setStoredUser(user: User | null): void {
       localStorage.removeItem(STORAGE_KEY);
     }
   } catch {
-    // Ignore storage quota or disabled errors
+    // localStorage disabled / quota exceeded.
   }
 }
 
-// Official BetterAuth client instance
 export const authClient = createAuthClient({
   baseURL:
     typeof window !== "undefined"
       ? window.location.origin
       : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
 });
-
-export const { signIn, signUp, signOut, useSession } = authClient;

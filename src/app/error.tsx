@@ -1,17 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { Home, RefreshCw } from "lucide-react";
 import { logger } from "@/lib/logger";
 
-/**
- * Global error boundary for the App Router.
- *
- * Triggered when an uncaught error is thrown anywhere in a child server or
- * client component on this route. We log the error and present a friendly
- * Bengali fallback so users have a way back to the home page.
- */
 export default function GlobalError({
   error,
   reset,
@@ -19,12 +12,13 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    logger.error("Unhandled application error", {
-      message: error?.message,
-      digest: error?.digest,
-    });
-  }, [error]);
+  // Log the digest only (a stable string) so we don't re-fire on every
+  // render in dev when `error` is a fresh reference each pass.
+  const loggedDigest = useRef<string | null>(null);
+  if (error.digest && loggedDigest.current !== error.digest) {
+    loggedDigest.current = error.digest;
+    logger.error("Unhandled application error", { message: error.message, digest: error.digest });
+  }
 
   return (
     <main className="min-h-[75vh] flex items-center justify-center px-4 py-16">
@@ -46,7 +40,7 @@ export default function GlobalError({
           করুন অথবা হোম পেজে ফিরে যান।
         </p>
 
-        {error?.digest ? (
+        {error.digest ? (
           <p className="text-[10px] text-slate-400 mt-3 font-mono break-all">
             রিপোর্ট আইডি: {error.digest}
           </p>
@@ -55,7 +49,7 @@ export default function GlobalError({
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             type="button"
-            onClick={() => reset()}
+            onClick={reset}
             className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition-all hover:scale-105"
           >
             <RefreshCw className="w-4 h-4" />

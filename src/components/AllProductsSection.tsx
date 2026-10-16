@@ -61,6 +61,14 @@ export default function AllProductsSection() {
     [filteredProducts, sortOption]
   );
 
+  // Pre-compute the product count per category once so the chip row doesn't
+  // re-scan the product list for every category on every render.
+  const countsByCategory = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of products) m.set(p.category, (m.get(p.category) ?? 0) + 1);
+    return m;
+  }, [products]);
+
   return (
     <section id="সব-পণ্য" className="py-12 sm:py-16 scroll-mt-24">
       {/* Header with Title and Subtitle */}
@@ -128,7 +136,7 @@ export default function AllProductsSection() {
         </button>
 
         {categories.map((cat) => {
-          const count = products.filter((p) => p.category === cat.slug).length;
+          const count = countsByCategory.get(cat.slug) ?? 0;
           const isSelected = selectedCategory === cat.slug;
 
           return (

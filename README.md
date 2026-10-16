@@ -102,7 +102,7 @@ Open `.env.local` and fill in the values — at minimum:
 - `BETTER_AUTH_SECRET` (generate with `openssl rand -base64 32`)
 - `NEXT_PUBLIC_APP_URL=http://localhost:3000`
 
-For real Google/GitHub sign-in, complete the [OAuth Setup](#-oauth-setup-google--github) section below and add the four OAuth credentials.
+To enable real Google/GitHub sign-in, add the four OAuth credentials (`GOOGLE_CLIENT_ID`/`SECRET` and `GITHUB_CLIENT_ID`/`SECRET`) to `.env.local`.
 
 ### 4. Start development server
 ```bash
@@ -115,85 +115,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build
 npm run start
 ```
-
----
-
-## 🔐 OAuth Setup (Google & GitHub)
-
-The app uses [BetterAuth](https://www.better-auth.com/) for social sign-in. To make the **Google** and **GitHub** buttons on `/signin` and `/signup` work with real providers, you need to register OAuth apps and paste the credentials into your environment.
-
-The callback URL pattern that BetterAuth expects is:
-
-```
-{BASE_URL}/api/auth/callback/{provider}
-```
-
-You need to register **two callback URLs** if you support both `localhost` and Vercel (or you can register them all under one OAuth app — Google supports multiple URIs per client, GitHub only supports one per app so register two apps).
-
-| Environment | Base URL | Google callback | GitHub callback |
-|---|---|---|---|
-| Local dev | `http://localhost:3000` | `http://localhost:3000/api/auth/callback/google` | `http://localhost:3000/api/auth/callback/github` |
-| Vercel | `https://bazar-dor-omega-six.vercel.app` | `https://bazar-dor-omega-six.vercel.app/api/auth/callback/google` | `https://bazar-dor-omega-six.vercel.app/api/auth/callback/github` |
-
----
-
-### 🟦 Google OAuth Setup
-
-1. Open the [Google Cloud Console → APIs & Services → Credentials](https://console.cloud.google.com/apis/credentials).
-2. Create (or select) a project.
-3. **Configure the OAuth consent screen** (required before creating credentials):
-   - User type: **External** (or Internal if you use Google Workspace).
-   - App name, support email, developer contact email.
-   - **Scopes:** add `openid`, `email`, and `profile`.
-   - Add test users if you keep the app in "Testing" mode.
-4. **Create credentials → OAuth client ID → Application type: Web application.**
-5. Fill in **Authorized JavaScript origins:**
-   - `http://localhost:3000`
-   - `https://bazar-dor-omega-six.vercel.app`
-6. Fill in **Authorized redirect URIs:**
-   - `http://localhost:3000/api/auth/callback/google`
-   - `https://bazar-dor-omega-six.vercel.app/api/auth/callback/google`
-7. Click **Create**, then copy the **Client ID** and **Client Secret**.
-8. Add them to your environment as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`.
-
----
-
-### ⬛ GitHub OAuth Setup
-
-GitHub's OAuth Apps only allow **one** callback URL per app. Register two apps if you need both local and production:
-
-1. Open [GitHub → Settings → Developer settings → OAuth Apps](https://github.com/settings/developers).
-2. Click **New OAuth App**.
-3. For the local app:
-   - **Application name:** `Bazar Dor (Local)`
-   - **Homepage URL:** `http://localhost:3000`
-   - **Authorization callback URL:** `http://localhost:3000/api/auth/callback/github`
-4. Click **Register application**, then **Generate a new client secret**.
-5. Copy the **Client ID** and the generated **Client Secret**.
-6. (Optional) Repeat the same steps for the production app, using `https://bazar-dor-omega-six.vercel.app` as the homepage and callback host.
-7. Add the values to your environment as `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`.
-
----
-
-### ☁️ Adding the env vars to Vercel
-
-1. Open your Vercel project → **Settings → Environment Variables**.
-2. Add each of the following, scoped to **Production**, **Preview**, and **Development** as needed:
-   - `BETTER_AUTH_SECRET`
-   - `NEXT_PUBLIC_APP_URL` = `https://bazar-dor-omega-six.vercel.app`
-   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-   - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
-3. After saving, redeploy the project so the new variables take effect.
-
-### ✅ Verifying it works
-
-1. Restart `npm run dev` (or trigger a Vercel redeploy).
-2. Visit `/signin`.
-3. Click **Google** — you should be redirected to `accounts.google.com`, approve the app, and land back on `/` signed in.
-4. Repeat with **GitHub**.
-5. Open DevTools → Application → Cookies → confirm a `better-auth.session_token` cookie is set.
-
-> **Note:** When running in production without the OAuth env vars, the server logs a warning at startup. This is intentional — it catches the common mistake of deploying without configuring the providers.
 
 ---
 

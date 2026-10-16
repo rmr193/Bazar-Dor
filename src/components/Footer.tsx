@@ -1,6 +1,5 @@
 import React from "react";
 
-// Minimal footer matching exact Figma design
 export default function Footer() {
   return (
     <footer className="mt-16 sm:mt-20 border-t border-slate-200/70 bg-white py-6">
