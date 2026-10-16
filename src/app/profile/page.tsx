@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import Spinner from "@/components/Spinner";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -20,15 +21,10 @@ export default function ProfilePage() {
   if (isLoading || !user) {
     return (
       <main className="min-h-[70vh] flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-[#057A44] border-t-transparent rounded-full animate-spin"></div>
+        <Spinner label="প্রোফাইল লোড হচ্ছে" />
       </main>
     );
   }
-
-  // Fallback user avatar photo
-  const userAvatar =
-    user.image ||
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80";
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -45,11 +41,17 @@ export default function ProfilePage() {
       {/* Top User Card matching Figma Image 2 */}
       <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
-          <img
-            src={userAvatar}
-            alt={user.name}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover bg-slate-100 border border-slate-200"
-          />
+          {user.image ? (
+            <img
+              src={user.image}
+              alt={user.name}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover bg-slate-100 border border-slate-200"
+            />
+          ) : (
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#057A44] text-white flex items-center justify-center font-bold text-2xl uppercase shadow-xs">
+              {user.name ? user.name.charAt(0) : "U"}
+            </div>
+          )}
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
               {user.name}

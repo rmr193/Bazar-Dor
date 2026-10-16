@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Product } from "@/types";
 import { getTopRisers, getTopFallers } from "@/lib/api";
+import { logger } from "@/lib/logger";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 
@@ -21,7 +22,7 @@ export default function MarketTrends() {
         setRisers(risersData);
         setFallers(fallersData);
       } catch (err) {
-        console.error("Market trends load error:", err);
+        logger.error("Market trends load error", err);
       } finally {
         setLoading(false);
       }

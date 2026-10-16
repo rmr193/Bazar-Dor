@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import Spinner from "@/components/Spinner";
 
 export default function UpdateProfilePage() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function UpdateProfilePage() {
   if (isLoading || !user) {
     return (
       <main className="min-h-[70vh] flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-[#057A44] border-t-transparent rounded-full animate-spin"></div>
+        <Spinner label="প্রোফাইল লোড হচ্ছে" />
       </main>
     );
   }

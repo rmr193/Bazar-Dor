@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import { Product } from "@/types";
 import { getProduct, getProducts } from "@/lib/api";
+import { getSlugParam } from "@/lib/params";
+import { logger } from "@/lib/logger";
 import {
   toBnNum,
   toBnCurrency,
@@ -38,7 +40,7 @@ import {
 export default function ProductDetailsPage() {
   const router = useRouter();
   const params = useParams();
-  const slug = (params?.slug as string) || "";
+  const slug = getSlugParam(params?.slug as string | string[] | undefined);
   const { user, isLoading: authLoading } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -68,9 +70,12 @@ export default function ProductDetailsPage() {
         if (prod) {
           // Check watchlist in localStorage
           try {
-            const savedList = JSON.parse(
+            const raw = JSON.parse(
               localStorage.getItem("bazardor_watchlist") || "[]"
             );
+            const savedList: number[] = Array.isArray(raw)
+              ? raw.filter((v): v is number => typeof v === "number" && Number.isFinite(v))
+              : [];
             setIsSaved(savedList.includes(prod.id));
           } catch {
             // Ignore storage errors
@@ -83,7 +88,7 @@ export default function ProductDetailsPage() {
           );
         }
       } catch (err) {
-        console.error("Product load error:", err);
+        logger.error("Product load error", err);
       } finally {
         setLoading(false);
       }
@@ -96,9 +101,14 @@ export default function ProductDetailsPage() {
   const toggleWatchlist = () => {
     if (!product) return;
     try {
-      const savedList: number[] = JSON.parse(
+      const raw = JSON.parse(
         localStorage.getItem("bazardor_watchlist") || "[]"
       );
+      // Validate that we have a real array of numbers (defence against bad storage)
+      const savedList: number[] = Array.isArray(raw)
+        ? raw.filter((v): v is number => typeof v === "number" && Number.isFinite(v))
+        : [];
+
       let updated: number[];
       if (savedList.includes(product.id)) {
         updated = savedList.filter((id) => id !== product.id);

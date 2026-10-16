@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Product } from "@/types";
 import { getProducts } from "@/lib/api";
+import { logger } from "@/lib/logger";
 import { toBnNum } from "@/lib/bengali";
 
 export default function PriceTicker() {
@@ -15,7 +16,7 @@ export default function PriceTicker() {
         const data = await getProducts();
         setProducts(data);
       } catch (e) {
-        console.error("Error loading ticker products:", e);
+        logger.error("Error loading ticker products", e);
       }
     }
     loadTickerProducts();

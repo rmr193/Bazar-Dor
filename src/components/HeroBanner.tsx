@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { getBanglaDate } from "@/lib/bengali";
 
 export default function HeroBanner() {
-  const [banglaDate, setBanglaDate] = useState<string>("মঙ্গলবার, ৬ অক্টোবর, ২০২৩");
+  // Start empty so we don't flash a hardcoded placeholder before hydration.
+  const [banglaDate, setBanglaDate] = useState<string>("");
 
   useEffect(() => {
     setBanglaDate(getBanglaDate());
@@ -36,6 +37,7 @@ export default function HeroBanner() {
               <a
                 href="#সব-পণ্য"
                 id="btn-hero-cta"
+                aria-label="সব পণ্য দেখুন (View all products)"
                 className="inline-block px-6 py-3 bg-[#057A44] hover:bg-[#04683A] text-white font-bold text-sm rounded-xl transition-all shadow-xs"
               >
                 সব পণ্য দেখুন

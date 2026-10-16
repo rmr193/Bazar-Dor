@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getBanglaDate } from "@/lib/bengali";
 import { FALLBACK_CATEGORIES } from "@/data/fallbackData";
 import { getCategories } from "@/lib/api";
+import { logger } from "@/lib/logger";
 import { Category } from "@/types";
 import { User, LogOut, ChevronDown } from "lucide-react";
 
@@ -29,7 +30,7 @@ export default function Navbar() {
           setCategories(data);
         }
       } catch (e) {
-        console.error("Categories fetch error:", e);
+        logger.error("Categories fetch error", e);
       }
     }
     loadCategories();
@@ -48,11 +49,6 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Fallback user avatar image
-  const userAvatar =
-    user?.image ||
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80";
 
   return (
     <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40">
@@ -83,11 +79,17 @@ export default function Navbar() {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center space-x-2 py-1.5 px-2 rounded-xl hover:bg-slate-50 transition-colors focus:outline-none"
                 >
-                  <img
-                    src={userAvatar}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                  />
+                  {user.image ? (
+                    <img
+                      src={user.image}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#057A44] text-white flex items-center justify-center font-bold text-xs uppercase shadow-2xs">
+                      {user.name ? user.name.charAt(0) : "U"}
+                    </div>
+                  )}
                   <span className="text-sm font-bold text-slate-800 hidden sm:inline">
                     {user.name.split(" ")[0]}
                   </span>
@@ -96,7 +98,7 @@ export default function Navbar() {
 
                 {/* Popover Dropdown matching Figma Image 1 */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-left animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-4 z-50 text-left animate-fade-zoom">
                     <div className="pb-3 border-b border-slate-100">
                       <p className="text-sm font-bold text-slate-900">{user.name}</p>
                       <p className="text-xs text-slate-400 truncate">{user.email}</p>
@@ -129,16 +131,20 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link
+                  id="nav-signin-link"
                   href="/signin"
+                  title="Sign In / Login"
                   className="px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#057A44] transition-colors"
                 >
-                  সাইন ইন
+                  সাইন ইন / Login
                 </Link>
                 <Link
+                  id="nav-signup-link"
                   href="/signup"
+                  title="Sign Up / Register"
                   className="px-3.5 py-1.5 text-xs sm:text-sm font-bold text-white bg-[#057A44] hover:bg-[#04683A] rounded-lg transition-colors shadow-xs"
                 >
-                  সাইন আপ
+                  সাইন আপ / Register
                 </Link>
               </div>
             )}

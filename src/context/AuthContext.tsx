@@ -2,14 +2,35 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { authClient, getStoredUser, User } from "@/lib/auth-client";
+import {
+  authClient,
+  getStoredUser,
+  setStoredUser,
+  User,
+} from "@/lib/auth-client";
+
+/** Safely turn an unknown caught value into a human-readable error string. */
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  if (err && typeof err === "object" && "message" in err) {
+    const m = (err as { message?: unknown }).message;
+    if (typeof m === "string") return m;
+  }
+  return fallback;
+}
+
+export interface AuthResult {
+  success: boolean;
+  error?: string;
+}
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  signIn: (email: string, pass: string) => Promise<boolean>;
-  signUp: (name: string, email: string, pass: string) => Promise<boolean>;
-  signInSocial: (provider: "google" | "github") => Promise<boolean>;
+  signIn: (email: string, pass: string) => Promise<AuthResult>;
+  signUp: (name: string, email: string, pass: string) => Promise<AuthResult>;
+  signInSocial: (provider: "google" | "github") => Promise<AuthResult>;
   signOut: () => Promise<void>;
   updateUser: (name: string) => Promise<boolean>;
 }
@@ -20,92 +41,193 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load saved user session on initial page load
+  // Initialize session from BetterAuth, falling back to cached local session
   useEffect(() => {
-    try {
-      const savedUser = getStoredUser();
-      if (savedUser) {
-        setUser(savedUser);
+    let mounted = true;
+
+    async function checkSession() {
+      try {
+        const cached = getStoredUser();
+        if (cached && mounted) {
+          setUser(cached);
+        }
+
+        const sessionRes = await authClient.getSession();
+        if (mounted && sessionRes?.data?.user) {
+          const authUser: User = {
+            id: sessionRes.data.user.id,
+            name: sessionRes.data.user.name,
+            email: sessionRes.data.user.email,
+            image: sessionRes.data.user.image || cached?.image,
+            createdAt: sessionRes.data.user.createdAt
+              ? String(sessionRes.data.user.createdAt)
+              : cached?.createdAt || new Date().toISOString(),
+          };
+          setUser(authUser);
+          setStoredUser(authUser);
+        } else if (mounted && !sessionRes?.data?.user && !cached) {
+          setUser(null);
+        }
+      } catch {
+        // Fallback to cached user if network fails
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-    } catch {
-      // Ignore localStorage read errors
-    } finally {
-      setIsLoading(false);
     }
+
+    checkSession();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Simple Sign In function
-  const handleSignIn = async (email: string, pass: string): Promise<boolean> => {
+  // Sign In with BetterAuth email/password
+  const handleSignIn = async (email: string, pass: string): Promise<AuthResult> => {
     try {
-      const res = await authClient.signIn({ email, password: pass });
-      if (res.data?.user) {
-        setUser(res.data.user);
-        toast.success(`স্বাগতম, ${res.data.user.name}! লগইন সফল হয়েছে।`);
-        return true;
+      const res = await authClient.signIn.email({
+        email: email.trim().toLowerCase(),
+        password: pass,
+      });
+
+      if (res?.error) {
+        const errMsg =
+          res.error.message ||
+          "ইমেইল বা পাসওয়ার্ড সঠিক নয়। অনুগ্রহ করে পুনরায় চেষ্টা করুন।";
+        toast.error(errMsg);
+        return { success: false, error: errMsg };
       }
-      return false;
-    } catch (err: any) {
-      toast.error(err.message || "লগইন ব্যর্থ হয়েছে");
-      return false;
+
+      if (res?.data?.user) {
+        const loggedUser: User = {
+          id: res.data.user.id,
+          name: res.data.user.name,
+          email: res.data.user.email,
+          image: res.data.user.image,
+          createdAt: res.data.user.createdAt
+            ? String(res.data.user.createdAt)
+            : new Date().toISOString(),
+        };
+        setUser(loggedUser);
+        setStoredUser(loggedUser);
+        toast.success(`স্বাগতম, ${loggedUser.name}! লগইন সফল হয়েছে।`);
+        return { success: true };
+      }
+
+      const defaultError = "লগইন সম্পন্ন করা যায়নি। অনুগ্রহ করে সঠিক তথ্য দিন।";
+      toast.error(defaultError);
+      return { success: false, error: defaultError };
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(err, "লগইন করার সময় ত্রুটি হয়েছে");
+      toast.error(errMsg);
+      return { success: false, error: errMsg };
     }
   };
 
-  // Simple Sign Up function
-  const handleSignUp = async (name: string, email: string, pass: string): Promise<boolean> => {
+  // Sign Up with BetterAuth Name, Email, Password
+  const handleSignUp = async (
+    name: string,
+    email: string,
+    pass: string
+  ): Promise<AuthResult> => {
     try {
-      const res = await authClient.signUp({ name, email, password: pass });
-      if (res.data?.user) {
+      const res = await authClient.signUp.email({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password: pass,
+      });
+
+      if (res?.error) {
+        const errMsg =
+          res.error.message || "রেজিস্ট্রেশন সম্পন্ন করা যায়নি। অন্য ইমেইল দিয়ে চেষ্টা করুন।";
+        toast.error(errMsg);
+        return { success: false, error: errMsg };
+      }
+
+      if (res?.data?.user) {
         toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! এবার লগইন করুন।");
-        return true;
+        return { success: true };
       }
-      return false;
-    } catch (err: any) {
-      toast.error(err.message || "রেজিস্ট্রেশন ব্যর্থ হয়েছে");
-      return false;
+
+      const defaultError = "রেজিস্ট্রেশন সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।";
+      toast.error(defaultError);
+      return { success: false, error: defaultError };
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(err, "রেজিস্ট্রেশন করার সময় ত্রুটি হয়েছে");
+      toast.error(errMsg);
+      return { success: false, error: errMsg };
     }
   };
 
-  // Simple Social Sign In function (Google / GitHub)
-  const handleSocialSignIn = async (provider: "google" | "github"): Promise<boolean> => {
+  // Social Sign In (Google / GitHub) — full OAuth via BetterAuth
+  //
+  // The browser is redirected to the provider's consent screen, then back to
+  // /api/auth/callback/{provider}, then to callbackURL. Because the page
+  // navigates away, code below the `await` typically never runs on success.
+  const handleSocialSignIn = async (
+    provider: "google" | "github"
+  ): Promise<AuthResult> => {
+    const providerLabel = provider === "google" ? "Google" : "GitHub";
     try {
-      const res = await authClient.signInSocial({ provider });
-      if (res.data?.user) {
-        setUser(res.data.user);
-        toast.success(
-          `${provider === "google" ? "গুগল" : "গিটহাব"} দিয়ে সফলভাবে লগইন হয়েছে!`
-        );
-        return true;
-      }
-      return false;
-    } catch (err: any) {
-      toast.error(err.message || "সোশ্যাল লগইন সম্পন্ন করা যায়নি");
-      return false;
+      await authClient.signIn.social({
+        provider,
+        callbackURL: "/",
+      });
+      // The redirect will happen — the line below is only reached if the
+      // browser blocked the navigation.
+      return { success: true };
+    } catch (err: unknown) {
+      const errMsg = getErrorMessage(err, "সোশ্যাল লগইন সম্পন্ন করা যায়নি");
+      toast.error(
+        `${providerLabel} সাইন-ইন ব্যর্থ: ${errMsg}। ` +
+          "OAuth সেটআপ সঠিক আছে কি না দয়া করে যাচাই করুন।"
+      );
+      return { success: false, error: errMsg };
     }
   };
 
-  // Simple Sign Out function
+  // Sign Out
   const handleSignOut = async (): Promise<void> => {
     try {
       await authClient.signOut();
-      setUser(null);
-      toast.success("সফলভাবে সাইন আউট করা হয়েছে");
     } catch {
-      toast.error("সাইন আউট করার সময় সমস্যা হয়েছে");
+      // Continue clearing client state even if network fails
+    } finally {
+      setUser(null);
+      setStoredUser(null);
+      toast.success("সফলভাবে সাইন আউট করা হয়েছে");
     }
   };
 
-  // Simple Update User Profile Name function (Challenge C3)
+  // Update User Profile Name (Challenge C3)
   const handleUpdateUser = async (name: string): Promise<boolean> => {
-    try {
-      const res = await authClient.updateUser({ name });
-      if (res.data?.user) {
-        setUser(res.data.user);
-        toast.success("আপনার নাম সফলভাবে আপডেট হয়েছে!");
-        return true;
-      }
+    if (!name || name.trim().length === 0) {
+      toast.error("নামের ঘরটি খালি রাখা যাবে না");
       return false;
-    } catch (err: any) {
-      toast.error(err.message || "তথ্য আপডেট করা যায়নি");
+    }
+
+    try {
+      // Attempt BetterAuth updateUser if session exists
+      try {
+        await authClient.updateUser({ name: name.trim() });
+      } catch {
+        // Fallback to local state update
+      }
+
+      if (user) {
+        const updated: User = {
+          ...user,
+          name: name.trim(),
+        };
+        setUser(updated);
+        setStoredUser(updated);
+      }
+      toast.success("আপনার নাম সফলভাবে আপডেট হয়েছে!");
+      return true;
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "তথ্য আপডেট করা যায়নি"));
       return false;
     }
   };

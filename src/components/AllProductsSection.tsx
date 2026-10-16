@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Product, Category, SortOption } from "@/types";
 import { getProducts, getCategories, sortProducts } from "@/lib/api";
+import { logger } from "@/lib/logger";
 import { toBnNum } from "@/lib/bengali";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
@@ -27,7 +28,7 @@ export default function AllProductsSection() {
         setProducts(prodData);
         setCategories(catData);
       } catch (err) {
-        console.error("All products fetch error:", err);
+        logger.error("All products fetch error", err);
       } finally {
         setLoading(false);
       }
@@ -35,24 +36,30 @@ export default function AllProductsSection() {
     loadData();
   }, []);
 
-  // Filter products by selected category and search query
-  const filteredProducts = products.filter((item) => {
-    // Category filter
-    const matchesCategory =
-      selectedCategory === "all" || item.category === selectedCategory;
+  // Filter products by selected category and search query (memoised)
+  const filteredProducts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return products.filter((item) => {
+      // Category filter
+      const matchesCategory =
+        selectedCategory === "all" || item.category === selectedCategory;
 
-    // Search query filter (matches Bengali name or English slug)
-    const matchesSearch =
-      searchQuery.trim() === "" ||
-      item.nameBn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.categoryNameBn.toLowerCase().includes(searchQuery.toLowerCase());
+      // Search query filter (matches Bengali name or English slug)
+      const matchesSearch =
+        q === "" ||
+        item.nameBn.toLowerCase().includes(q) ||
+        item.slug.toLowerCase().includes(q) ||
+        item.categoryNameBn.toLowerCase().includes(q);
 
-    return matchesCategory && matchesSearch;
-  });
+      return matchesCategory && matchesSearch;
+    });
+  }, [products, selectedCategory, searchQuery]);
 
-  // Sort products with Bengali numerals support (Challenge C1)
-  const displayedProducts = sortProducts(filteredProducts, sortOption);
+  // Sort products with Bengali numerals support (Challenge C1) — memoised
+  const displayedProducts = useMemo(
+    () => sortProducts(filteredProducts, sortOption),
+    [filteredProducts, sortOption]
+  );
 
   return (
     <section id="সব-পণ্য" className="py-12 sm:py-16 scroll-mt-24">

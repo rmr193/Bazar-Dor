@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Product, Category, SortOption } from "@/types";
 import { getCategoryBySlug, getProducts, sortProducts } from "@/lib/api";
+import { getSlugParam } from "@/lib/params";
+import { logger } from "@/lib/logger";
 import { toBnNum } from "@/lib/bengali";
 import ProductCard from "@/components/ProductCard";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
@@ -12,7 +14,7 @@ import { ChevronDown, ArrowLeft, Home, Filter } from "lucide-react";
 
 export default function CategoryPage() {
   const params = useParams();
-  const slug = (params?.slug as string) || "";
+  const slug = getSlugParam(params?.slug as string | string[] | undefined);
 
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -32,7 +34,7 @@ export default function CategoryPage() {
         setCategory(catData);
         setProducts(prodData);
       } catch (err) {
-        console.error("Category data load error:", err);
+        logger.error("Category data load error", err);
       } finally {
         setLoading(false);
       }
